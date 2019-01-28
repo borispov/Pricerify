@@ -6,17 +6,19 @@ const app = express()
 
 // middleware
 app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
 
 // routes
-const routes = require('./routes/')
-app.use('/', routes)
+const routes = require('./routes/index')
+app.use('/', routes.productRoutes)
 
 // error handling
 app.use((error, req, res, next) => {
   res.status(error.statusCode || 500).json({ error: error.message });
 });
+
+// app.all('*', (_, res) => res.sendStatus(200).json('Trying to use undefined route, please stick to the API routes.'))
 
 
 module.exports = app

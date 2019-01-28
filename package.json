@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "jest": "23.6.0",
+    "mongoose": "^5.4.7",
     "nodemon": "*"
   }
 }
