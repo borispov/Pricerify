@@ -69,7 +69,8 @@ module.exports = async function (URL, market) {
     return {
       price: strippedPrice,
       title: getTitle,
-      img: getImg.trim()
+      img: getImg.trim(),
+      url: URL
     }
     return strippedPrice
   }

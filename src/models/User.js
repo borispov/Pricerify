@@ -4,7 +4,8 @@ const Schema = mongoose.Schema
 const UserSchema = new Schema({
   password: {type: String, required: true},
   email: {type: String, required: true},
-  createdAt: {type: Date, default: Date.now}
+  createdAt: {type: Date, default: Date.now},
+  followedProducts: [ofString]
 })
 
 module.exports = mongoose.model('users', UserSchema)
