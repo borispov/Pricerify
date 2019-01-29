@@ -1,4 +1,3 @@
-const puppeteer = require('puppeteer');
 const isURL = require('./isURL')
 const identifyMarket = require('./identifyMarket')
 const priceScreenshot = require('./priceScreenshot')
@@ -38,7 +37,6 @@ const isDomainSupported = URL => identifyMarket(URL)
 const currentPrice = async URL => {
   let isValidUrl = await isURL(URL)
   let theMarket = isDomainSupported(URL)
-  console.log(theMarket)
   try {
     if ( !isValidUrl ) throw new Error('invalid url request')
     if ( !theMarket ) throw new Error('This domain is not supported by Deal-Stalk')
@@ -48,5 +46,4 @@ const currentPrice = async URL => {
   }
 }
 
-console.log(typeof currentPrice)
 module.exports = currentPrice

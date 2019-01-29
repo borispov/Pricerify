@@ -48,7 +48,6 @@ module.exports = async function (URL, market) {
   let marketSelectors = filterSel(market)
   
   const { PRICE_ID, PRODUCT_TITLE, PRODUCT_IMAGE } = marketSelectors
-  console.log(marketSelectors)
   const page = await browser.newPage()
   await page.goto(URL)
 

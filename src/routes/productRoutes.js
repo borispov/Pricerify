@@ -15,14 +15,12 @@ router.get('/api/v1/getUserProduct/:id', (req, res) => {
 
 // get 
 router.get('/api/v1/getProd/', async (req, res) => {
-  const url2 = req.params.URL
   const url = req.body.URL.toString()
-  console.log('an attempt to connect...')
   let result = await currentPrice(url)
   res.send(result)
 })
 
-// get all products
+// get all products from DB
 router.get('/api/v1/getUserProduct/', (req, res) => {
   const { user } = req.body
 
@@ -32,7 +30,8 @@ router.get('/api/v1/getUserProduct/', (req, res) => {
   return response
 })
 
-// post a product
+// post a product.
+// try to register a product in user's DB.
 router.post('/api/v1/addProduct', (req, res) => {
 
 })

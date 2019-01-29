@@ -13,12 +13,13 @@ app.use(bodyParser.json())
 const routes = require('./routes/index')
 app.use('/', routes.productRoutes)
 
+app.all('*', (req, res) =>{
+  res.end('Trying to use undefined route, please stick to the API routes.')
+})
+
 // error handling
 app.use((error, req, res, next) => {
   res.status(error.statusCode || 500).json({ error: error.message });
 });
-
-// app.all('*', (_, res) => res.sendStatus(200).json('Trying to use undefined route, please stick to the API routes.'))
-
 
 module.exports = app
