@@ -15,8 +15,8 @@ router.get('/api/v1/getUserProduct/:id', (req, res) => {
 
 // follow 
 router.get('/api/v1/followProduct/:prod', async (req, res) => {
-  const { user, prod } = req.body
-  const { prod } = req.params
+  const { user } = req.body
+  const { prod } = req.params || req.body
 
   const prodId = prod._id
   
@@ -39,6 +39,7 @@ router.get('/api/v1/followProduct/:prod', async (req, res) => {
 
 // get 
 router.get('/api/v1/getProd/', async (req, res) => {
+  if(!req.body.URL) throw new Error('no url provided')
   const url = req.body.URL.toString()
   let result = await currentPrice(url)
   res.send(result)
@@ -57,7 +58,24 @@ router.get('/api/v1/getUserProduct/', (req, res) => {
 // post a product.
 // try to register a product in user's DB.
 router.post('/api/v1/addProduct', (req, res) => {
+  const { user, prod } = req.body
 
+  // TODO: handle exception better.
+  if (!user || !prod) throw new Error('No user or no product provided')
+
+  UserModel.find({user}, (err, user) => {
+    if (err) {
+      res.sendStatus(404).json('user not found')
+    }
+    // add product to DB and append the product's id to user's followed products
+    user.followedProducts.concat(prod._id)
+    const newProd = new ProductModel({
+      productName: prod.title,
+      image: prod.img,
+      url: prod.path,
+      prices: {price: prod.price}
+    })
+  })
 })
 
 
