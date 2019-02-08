@@ -49,7 +49,7 @@ router.get('/api/v1/getProd/', async (req, res) => {
 router.get('/api/v1/getUserProduct/', (req, res) => {
   const { user } = req.body
 
-  const response = ProductModel.findAl({user}, (err, products) => {
+  const response = ProductModel.findAll({user}, (err, products) => {
     return err ? res.sendStatus(404).json(err) : res.sendStatus(200).json(products)
   })
   return response
@@ -59,22 +59,22 @@ router.get('/api/v1/getUserProduct/', (req, res) => {
 // try to register a product in user's DB.
 router.post('/api/v1/addProduct', (req, res) => {
   const { user, prod } = req.body
-
   // TODO: handle exception better.
   if (!user || !prod) throw new Error('No user or no product provided')
 
-  UserModel.find({user}, (err, user) => {
-    if (err) {
-      res.sendStatus(404).json('user not found')
+  UserModel.find({user}, (err, dbUser) => {
+    if (err || !dbUser.length) {
+      throw new Error('user not found')
     }
     // add product to DB and append the product's id to user's followed products
-    user.followedProducts.concat(prod._id)
+    dbUser.followedProducts.concat(prod._id)
     const newProd = new ProductModel({
       productName: prod.title,
       image: prod.img,
       url: prod.path,
-      prices: {price: prod.price}
+      prices: prod.price
     })
+    newProd.save().then(() => res.json('Item added successfully!')).catch((err) => res.json(err))
   })
 })
 
