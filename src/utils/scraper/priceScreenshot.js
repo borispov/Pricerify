@@ -38,18 +38,34 @@ function filterSel(currentMarket) {
 
 module.exports = async function (URL, market) {
 
-  // console.log(URL)
+  console.log(URL)
   if (!URL) {
     throw new Error ('Argument is not a valid URL')
   }
 
-  const browser = await puppeteer.launch()
+  const browser = await puppeteer.launch({
+    args: ['--enable-features=NetworkService'],
+    ignoreHTTPSErrors: true
+  })
 
   let marketSelectors = filterSel(market)
   
   const { PRICE_ID, PRODUCT_TITLE, PRODUCT_IMAGE } = marketSelectors
   const page = await browser.newPage()
-  await page.goto(URL)
+  await page.setJavaScriptEnabled(false)
+  await page.setRequestInterception(true)
+    
+  page.on('request', (req) => {
+    if(req.resourceType() == 'stylesheet' || req.resourceType() == 'font' || req.resourceType() == 'image'){
+      req.abort()
+    } else {
+        req.continue()
+    }
+  })
+
+  await page.goto(URL, {
+    timeout: 300000
+  })
 
   let getPrice = await page.$(`#${PRICE_ID}`) !== null
     ? (
@@ -59,16 +75,18 @@ module.exports = async function (URL, market) {
     : (
         console.log('not found'),
         await page.evaluate((sel) => document.getElementById(sel).innerHTML, 'priceblock_dealprice')
-      );
+      )
       
   const getImg = await page.evaluate((img) => document.getElementById(img).src, PRODUCT_IMAGE)
   const getTitle = await page.evaluate((sel) => document.getElementById(sel).innerHTML, PRODUCT_TITLE)
 
   if ( isNaN(getPrice[0]) ) {
     const strippedPrice = stripCurrency(getPrice)
+    const currency = getPrice[0]
     return {
+      currency, 
       price: strippedPrice,
-      title: getTitle,
+      title: getTitle.trim(),
       img: getImg.trim(),
       url: URL
     }
