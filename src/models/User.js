@@ -8,4 +8,6 @@ const UserSchema = new Schema({
   followedProducts: [String]
 })
 
-module.exports = mongoose.model('users', UserSchema)
+const User = mongoose.model('users', UserSchema)
+
+module.exports = User

@@ -14,10 +14,9 @@ app.use(bodyParser.json())
 app.use(passport.initialize())
 require('./passport')(passport)
 
-
 // routes
-const routes = require('./routes/index')
-app.use('/', routes.productRoutes)
+const { userRoutes, productRoutes } = require('./routes/index')
+app.use('/', userRoutes, productRoutes)
 
 app.all('*', (req, res) =>{
   res.end('Trying to use undefined route, please stick to the API routes.')

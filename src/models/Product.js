@@ -18,7 +18,8 @@ const ProductSchema = new Schema({
 
   prices: [{
     date: {type: Date, default: Date.now},
-    price: Number
+    price: Number,
+    _id: false
   }]
 
 })

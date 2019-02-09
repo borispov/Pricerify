@@ -13,7 +13,8 @@ router.get('/api/v1/getUserProduct/:id', (req, res) => {
   return response
 })
 
-// follow 
+// follow a product
+// use case: add the product to my notifcation list, notify me about changes.
 router.get('/api/v1/followProduct/:prod', async (req, res) => {
   const { user } = req.body
   const { prod } = req.params || req.body
@@ -21,17 +22,12 @@ router.get('/api/v1/followProduct/:prod', async (req, res) => {
   const prodId = prod._id
   
   if (prod && user) {
-    const newProduct = new ProductModel()
-    newProduct.productName = prod.title,
-    newProduct.image = prod.image,
-    newProduct.url = prod.url,
-    newProduct.prices.concat({prices: prod.price})
-
-    UserModel.findOne({user}, (err, usr) => {
-      if (err) return err
-      usr.followedProducts.concat(newProduct._id)
-    })
-
+    ProductModel.findOne({_id: prodId})
+      .then((response) => {
+        UserModel.findOne({user}).then(usr => {
+          usr.followedProducts.concat(newProduct._id).catch(err => console.error(err))
+        }).catch(err => console.error(err))
+      })
   } else {
     res.sendStatus(404).json('incorrect data sent')
   }
@@ -46,7 +42,7 @@ router.get('/api/v1/getProd/', async (req, res) => {
 })
 
 // get all products from DB
-router.get('/api/v1/getUserProduct/', (req, res) => {
+router.get('/api/v1/getUserProduct/', async (req, res) => {
   const { user } = req.body
 
   const response = ProductModel.findAll({user}, (err, products) => {
@@ -55,27 +51,31 @@ router.get('/api/v1/getUserProduct/', (req, res) => {
   return response
 })
 
-// post a product.
-// try to register a product in user's DB.
+// use case: "Add this product to my list"  -- internally, adds it to the DB
 router.post('/api/v1/addProduct', (req, res) => {
+  const errors = {}
   const { user, prod } = req.body
   // TODO: handle exception better.
   if (!user || !prod) throw new Error('No user or no product provided')
 
-  UserModel.find({user}, (err, dbUser) => {
-    if (err || !dbUser.length) {
-      throw new Error('user not found')
-    }
-    // add product to DB and append the product's id to user's followed products
-    dbUser.followedProducts.concat(prod._id)
-    const newProd = new ProductModel({
-      productName: prod.title,
-      image: prod.img,
-      url: prod.path,
-      prices: prod.price
+  UserModel.findOne({email: user})
+    .then(user => {
+      if (!user) {
+        errors.email = 'User Not Found'
+        return res.status(404).json(errors)
+      }
+      user.followedProducts.concat(prod._id)
+      console.log(prod)
+      const newProd = new ProductModel({
+        productName: prod.title,
+        image: prod.img,
+        url: prod.path,
+        prices: prod.prices
+      }).save().then(_ => res.json('Successfully Added Item')).catch(err => console.error(err))
     })
-    newProd.save().then(() => res.json('Item added successfully!')).catch((err) => res.json(err))
-  })
+    
+    // add product to DB and append the product's id to user's followed products
+   
 })
 
 
