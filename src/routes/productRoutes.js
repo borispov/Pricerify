@@ -15,21 +15,18 @@ router.get('/api/v1/getUserProduct/:id', (req, res) => {
 
 // follow a product
 // use case: add the product to my notifcation list, notify me about changes.
-router.get('/api/v1/followProduct/:prod', async (req, res) => {
+router.post('/api/v1/followProduct/:prod', async (req, res) => {
+
   const { user } = req.body
   const { prod } = req.params || req.body
+  // TODO: Fix this behavior. only add item if it's unique, if item already exists, send appropriate response.
+  const prodId = prod._id || prod 
 
-  const prodId = prod._id
-  
   if (prod && user) {
-    ProductModel.findOne({_id: prodId})
-      .then((response) => {
-        UserModel.findOne({user}).then(usr => {
-          usr.followedProducts.concat(newProduct._id).catch(err => console.error(err))
-        }).catch(err => console.error(err))
-      })
-  } else {
-    res.sendStatus(404).json('incorrect data sent')
+    const userData = await UserModel.findOne({email: user}).catch(err => console.log(err))
+    userData.followedProducts = userData.followedProducts.concat('1232123ssdd')
+    console.log(userData.followedProducts)
+    userData.save()
   }
 })
 
@@ -64,14 +61,14 @@ router.post('/api/v1/addProduct', (req, res) => {
         errors.email = 'User Not Found'
         return res.status(404).json(errors)
       }
-      user.followedProducts.concat(prod._id)
+      // user.followedProducts.concat(prod._id)
       console.log(prod)
       const newProd = new ProductModel({
         productName: prod.title,
         image: prod.img,
         url: prod.path,
         prices: prod.prices
-      }).save().then(_ => res.json('Successfully Added Item')).catch(err => console.error(err))
+      }).save().then(product => res.json(product)).catch(err => console.error(err))
     })
     
     // add product to DB and append the product's id to user's followed products
